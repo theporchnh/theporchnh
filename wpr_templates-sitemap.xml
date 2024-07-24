@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This sitemap was dynamically generated on 24 July 2024 at 4:18 pm by All in One SEO v4.6.7.1 - the original SEO plugin for WordPress. -->
+
+<?xml-stylesheet type="text/xsl" href="/default-sitemap.xsl?sitemap=wpr_templates"?>
+<urlset
+	xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+>
+	<url>
+		<loc><![CDATA[/?wpr_templates=user-header-winebar-v1-header%5D%5D%3E</loc>
+		<lastmod><![CDATA[2024-05-20T04:24:17+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+		<image:image>
+			<image:loc><![CDATA[/wp-content/uploads/2021/08/cropped-logo-transparent.png]]></image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc><![CDATA[/?wpr_templates=user-footer-winebar-v1-footer%5D%5D%3E</loc>
+		<lastmod><![CDATA[2024-05-17T03:46:53+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+	</url>
+	<url>
+		<loc><![CDATA[/?wpr_templates=user-header-header%5D%5D%3E</loc>
+		<lastmod><![CDATA[2022-05-10T17:42:42+00:00]]></lastmod>
+		<changefreq><![CDATA[weekly]]></changefreq>
+		<priority><![CDATA[0.7]]></priority>
+	</url>
+</urlset>
