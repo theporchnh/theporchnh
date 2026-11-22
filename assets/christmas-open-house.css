@@ -1,0 +1,108 @@
+.porch-christmas {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  background: #203e33;
+  color: #fffaf0;
+  border-bottom: 3px solid #c9aa70;
+  padding: 24px 64px 24px 24px;
+}
+
+.porch-christmas[hidden],
+.porch-christmas .porch-christmas__close[hidden] { display: none !important; }
+
+.porch-christmas__inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.porch-christmas__image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #c9aa70;
+  flex-shrink: 0;
+}
+
+.porch-christmas__copy { flex: 1; }
+
+.porch-christmas .porch-christmas__eyebrow {
+  margin: 0 0 4px;
+  color: #e8d2a6;
+  font: 600 .875rem/1.5 Arial, sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.porch-christmas .porch-christmas__title {
+  margin: 0 0 8px;
+  color: #fffaf0;
+  font: 500 clamp(1.75rem, 3vw, 2.25rem)/1.15 "Playfair Display", Georgia, serif;
+}
+
+.porch-christmas .porch-christmas__dates,
+.porch-christmas .porch-christmas__note {
+  margin: 0;
+  color: #fffaf0;
+  font: 400 1rem/1.6 Arial, sans-serif;
+}
+
+.porch-christmas__dates span { display: inline-block; }
+.porch-christmas__dates span + span { margin-left: 16px; }
+.porch-christmas .porch-christmas__note { margin-top: 4px; }
+
+.porch-christmas .porch-christmas__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: 1px solid #e8d2a6;
+  border-radius: 3px;
+  background: #f6ebd6;
+  color: #203e33;
+  font: 600 1rem/1.4 Arial, sans-serif;
+  text-decoration: none;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.porch-christmas .porch-christmas__link:hover { background: #e8d2a6; color: #203e33; }
+
+.porch-christmas .porch-christmas__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: #fffaf0;
+  font: 400 1.75rem/1 Arial, sans-serif;
+  cursor: pointer;
+}
+
+.porch-christmas .porch-christmas__close:hover { background: #355346; }
+.porch-christmas :is(a, button):focus-visible { outline: 3px solid #e8d2a6; outline-offset: 4px; }
+
+@media (max-width: 767px) {
+  .porch-christmas { padding: 24px 48px 24px 20px; }
+  .porch-christmas__inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .porch-christmas__image { display: none; }
+  .porch-christmas__dates span { display: block; }
+  .porch-christmas__dates span + span { margin-left: 0; }
+}
+
+@media print {
+  .porch-christmas { display: none; }
+}
