@@ -1,0 +1,172 @@
+/* An additive Christmas layer, loaded only on Home and Events. */
+.porch-festive-page .porch-christmas {
+  padding-top: 65px;
+  background: radial-gradient(ellipse at 50% 0, #395a40 0, #203e33 65%);
+  border-bottom: 5px solid transparent;
+  border-image: repeating-linear-gradient(135deg, #a73640 0 12px, #fff4d9 12px 24px, #355d42 24px 36px, #fff4d9 36px 48px) 5;
+}
+.porch-festive-page .porch-christmas::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 66px;
+  background: url("festive-garland.svg") repeat-x top center / 240px 66px;
+  pointer-events: none;
+}
+.porch-festive-page .porch-christmas__image {
+  box-shadow: 0 0 0 5px #ffffff0d, 0 0 28px #e8c37940;
+}
+.porch-festive-page .porch-christmas__title { text-shadow: 0 2px 18px #d7ad6059; }
+.porch-festive-page .porch-christmas__close { top: 57px; }
+.porch-festive-lights {
+  position: fixed;
+  z-index: 9998;
+  inset: 0 0 auto;
+  height: 35px;
+  display: flex;
+  justify-content: space-around;
+  overflow: hidden;
+  pointer-events: none;
+  border-top: 2px solid #233b2b;
+  filter: drop-shadow(0 2px 2px #0003);
+}
+.porch-festive-bulb {
+  position: relative;
+  flex: 0 0 9px;
+  height: 15px;
+  margin-top: 7px;
+  border-radius: 45% 45% 50% 50%;
+  background: var(--bulb);
+  color: var(--bulb);
+  box-shadow: 0 0 7px 2px currentColor, 0 0 20px currentColor;
+  transform: rotate(var(--tilt));
+  animation: porch-light-glow 3.8s ease-in-out infinite alternate;
+  animation-delay: var(--delay);
+}
+.porch-festive-bulb::before {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 8px;
+  top: -7px;
+  left: 1.5px;
+  background: #304838;
+  border-radius: 2px 2px 0 0;
+}
+.porch-festive-snow {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9996;
+  pointer-events: none;
+}
+.porch-festive-sleigh {
+  position: fixed;
+  z-index: 9997;
+  top: 26%;
+  left: 0;
+  width: clamp(160px, 24vw, 300px);
+  pointer-events: none;
+  filter: drop-shadow(0 3px 8px #1c302530);
+  transform: translateX(-350px);
+  animation: porch-sleigh-flight 48s linear infinite;
+}
+.porch-festive-controls {
+  position: fixed;
+  z-index: 10000;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  left: max(18px, env(safe-area-inset-left));
+  max-width: calc(100vw - 36px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #d5b373;
+  border-radius: 32px;
+  background: #203e33;
+  box-shadow: 0 5px 24px #102b2833;
+  color: #fff4dc;
+}
+.porch-festive-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  min-width: 0;
+  padding: 10px 15px;
+  margin: 0;
+  border: 0;
+  border-radius: 25px;
+  background: transparent;
+  color: #fff4dc;
+  font: 600 .875rem/1.4 Arial, sans-serif;
+  text-transform: none;
+  letter-spacing: .01em;
+  cursor: pointer;
+  transition: background .2s;
+}
+.porch-festive-controls button:hover,
+.porch-festive-controls button[aria-pressed="true"] { background: #ffffff14; color: #fff4dc; }
+.porch-festive-controls button:focus-visible { outline: 2px solid #f3d18a; outline-offset: 1px; }
+.porch-festive-controls button:disabled { cursor: default; opacity: .7; }
+.porch-festive-controls svg { width: 19px; height: 19px; flex: 0 0 19px; }
+.porch-festive-controls button span { min-width: 0; white-space: normal; text-align: left; }
+.porch-festive-controls .porch-festive-motion { flex-shrink: 0; }
+.porch-festive-controls__divider { width: 1px; height: 22px; background: #d5b37366; }
+.porch-festive-ornament {
+  position: absolute;
+  right: 14px;
+  top: 23px;
+  width: 27px;
+  height: 33px;
+  border-radius: 45% 45% 50% 50%;
+  background: radial-gradient(circle at 30% 25%, #f5ce9e, #b63440 40%, #6e1c2c 95%);
+  box-shadow: inset 0 0 0 1px #e8bf7166, 0 3px 8px #0003;
+  transform-origin: 50% -15px;
+  animation: porch-ornament-sway 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.porch-festive-ornament::before {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 18px;
+  background: #e5c387;
+  top: -18px;
+  left: 13px;
+}
+.porch-festive-ornament::after {
+  content: "✧";
+  position: absolute;
+  inset: 4px 0 0;
+  text-align: center;
+  font: 22px/1 Georgia, serif;
+  color: #f3d397;
+}
+.porch-festive-paused :is(.porch-festive-bulb, .porch-festive-ornament) { animation-play-state: paused; }
+.porch-festive-paused .porch-festive-sleigh,
+.porch-festive-paused .porch-festive-snow { display: none; }
+@keyframes porch-light-glow { from { opacity: .65; } to { opacity: 1; } }
+@keyframes porch-ornament-sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+@keyframes porch-sleigh-flight {
+  0% { transform: translate(-350px, 30px) rotate(-4deg); }
+  27%, 100% { transform: translate(calc(100vw + 40px), -110px) rotate(-4deg); }
+}
+@media (max-width: 767px) {
+  .porch-festive-page .porch-christmas { padding-top: 60px; }
+  .porch-festive-bulb:nth-child(2n) { display: none; }
+  .porch-festive-controls { bottom: max(12px, env(safe-area-inset-bottom)); left: 12px; }
+  .porch-festive-controls button { padding: 9px 12px; }
+}
+@media (max-width: 400px) {
+  .porch-festive-controls .porch-festive-motion span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .porch-festive-bulb, .porch-festive-ornament { animation: none; }
+  .porch-festive-sleigh, .porch-festive-snow { display: none; }
+}
+@media print {
+  .porch-festive-lights, .porch-festive-snow, .porch-festive-sleigh, .porch-festive-controls { display: none; }
+}
