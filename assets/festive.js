@@ -131,19 +131,9 @@
   resizeSnow();
   updateMotion();
 
-  // Public-domain carol melodies, played locally as a gentle music box.
-  // No recording, third-party player, tracking, or audio download is needed.
-  const pitches = { C: 72, D: 74, E: 76, F: 77, G: 79, A: 81, B: 83, c: 84, b: 71 };
-  const jingleBells = [
-    ['E', 1], ['E', 1], ['E', 2], ['E', 1], ['E', 1], ['E', 2],
-    ['E', 1], ['G', 1], ['C', 1.5], ['D', .5], ['E', 4],
-    ['F', 1], ['F', 1], ['F', 1.5], ['F', .5], ['F', 1], ['E', 1], ['E', 1], ['E', .5], ['E', .5],
-    ['E', 1], ['D', 1], ['D', 1], ['E', 1], ['D', 2], ['G', 2],
-    ['E', 1], ['E', 1], ['E', 2], ['E', 1], ['E', 1], ['E', 2],
-    ['E', 1], ['G', 1], ['C', 1.5], ['D', .5], ['E', 4],
-    ['F', 1], ['F', 1], ['F', 1.5], ['F', .5], ['F', 1], ['E', 1], ['E', 1], ['E', .5], ['E', .5],
-    ['G', 1], ['G', 1], ['F', 1], ['D', 1], ['C', 4], [null, 4]
-  ];
+  // A local cocktail-jazz arrangement of the traditional carol Deck the Halls.
+  // Warm piano harmonics, bass, and a quiet brush rhythm; no external player.
+  const pitches = { C: 60, D: 62, E: 64, F: 65, G: 67, A: 69, B: 71, c: 72, b: 59 };
   const deckTheHalls = [
     ['G', 1.5], ['F', .5], ['E', 1], ['D', 1], ['C', 1], ['D', 1], ['E', 1], ['C', 1],
     ['D', .5], ['E', .5], ['F', .5], ['D', .5], ['E', 1.5], ['D', .5], ['C', 1], ['b', 1], ['C', 2],
@@ -154,26 +144,48 @@
     ['G', 1.5], ['F', .5], ['E', 1], ['D', 1], ['C', 1], ['D', 1], ['E', 1], ['C', 1],
     ['A', .5], ['A', .5], ['A', .5], ['A', .5], ['G', 1.5], ['F', .5], ['E', 1], ['D', 1], ['C', 4], [null, 6]
   ];
-  const score = [...jingleBells, ...deckTheHalls];
+  const beat = 60 / 116;
+  const score = [];
+  let scoreLength = 0;
+  for (const [pitch, beats] of deckTheHalls) {
+    if (pitch) score.push({ at: scoreLength, midi: pitches[pitch], beats });
+    scoreLength += beats;
+  }
+  // Four-bar changes with sixths and sevenths for a warm holiday lounge sound.
+  const changes = [
+    [36, [48, 52, 55, 57]], [36, [48, 52, 55, 57]],
+    [41, [48, 53, 57, 60]], [43, [47, 53, 57, 62]],
+    [36, [48, 52, 55, 57]], [45, [48, 52, 55, 59]],
+    [38, [48, 53, 57, 60]], [43, [47, 53, 57, 62]]
+  ];
   let audio = null;
   let master = null;
   let timer = null;
   let playing = false;
-  let starting = false;
   let nextNote = 0;
   let noteIndex = 0;
+  let cycleStart = 0;
+  let nextBeat = 0;
+  let beatIndex = 0;
   const voices = new Set();
+  const musicKey = 'porch-christmas-music';
+  let musicWanted = true;
+  try { musicWanted = sessionStorage.getItem(musicKey) !== 'off'; } catch (_) {}
 
-  function chime(midi, when, duration, volume) {
+  // Delay offbeats to give the arrangement a light swing.
+  function swing(position) {
+    return position + (position % 1 === .5 ? 1 / 6 : 0);
+  }
+
+  function piano(midi, when, duration, volume) {
     const frequency = 440 * Math.pow(2, (midi - 69) / 12);
-    // A fundamental and a quiet overtone give a soft, bell-like attack.
-    [1, 2].forEach((harmonic) => {
+    [1, 2, 3].forEach((harmonic) => {
       const oscillator = audio.createOscillator();
       const envelope = audio.createGain();
       oscillator.type = 'sine';
       oscillator.frequency.value = frequency * harmonic;
       envelope.gain.setValueAtTime(0, when);
-      envelope.gain.linearRampToValueAtTime(volume / (harmonic * harmonic), when + .012);
+      envelope.gain.linearRampToValueAtTime(volume / Math.pow(harmonic, 3), when + .008);
       envelope.gain.exponentialRampToValueAtTime(.0001, when + duration);
       oscillator.connect(envelope);
       envelope.connect(master);
@@ -188,18 +200,58 @@
     });
   }
 
+  let brushBuffer = null;
+  function brush(when, accent) {
+    if (!brushBuffer) {
+      brushBuffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * .12), audio.sampleRate);
+      const samples = brushBuffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+    }
+    const source = audio.createBufferSource();
+    const filter = audio.createBiquadFilter();
+    const envelope = audio.createGain();
+    source.buffer = brushBuffer;
+    filter.type = 'highpass';
+    filter.frequency.value = 6500;
+    envelope.gain.setValueAtTime(accent ? .025 : .012, when);
+    envelope.gain.exponentialRampToValueAtTime(.0001, when + .1);
+    source.connect(filter);
+    filter.connect(envelope);
+    envelope.connect(master);
+    source.start(when);
+    source.stop(when + .12);
+    voices.add(source);
+    source.onended = () => {
+      source.disconnect();
+      filter.disconnect();
+      envelope.disconnect();
+      voices.delete(source);
+    };
+  }
+
   function scheduleMusic() {
     if (!playing) return;
-    while (nextNote < audio.currentTime + .3) {
-      const [pitch, beats] = score[noteIndex];
-      const duration = beats * .38;
-      if (pitch) {
-        const midi = pitches[pitch];
-        chime(midi, nextNote, Math.min(duration * 1.8, 1.8), .19);
-        if (noteIndex % 4 === 0) chime(midi - 24, nextNote, 1.4, .07);
+    const horizon = audio.currentTime + .3;
+    while (nextNote < horizon) {
+      const note = score[noteIndex];
+      piano(note.midi + 12, nextNote, Math.min(note.beats * beat * 1.3, 1.8), .16);
+      noteIndex++;
+      if (noteIndex === score.length) {
+        noteIndex = 0;
+        cycleStart += scoreLength * beat;
       }
-      nextNote += duration;
-      noteIndex = (noteIndex + 1) % score.length;
+      nextNote = cycleStart + swing(score[noteIndex].at) * beat;
+    }
+    while (nextBeat < horizon) {
+      const [root, chord] = changes[Math.floor(beatIndex / 4) % changes.length];
+      const step = beatIndex % 4;
+      piano(root + [0, 7, 12, 7][step], nextBeat, beat * .85, .16);
+      if (step === 1 || step === 3) {
+        chord.forEach((midi, i) => piano(midi, nextBeat + i * .009, beat * .8, .045));
+      }
+      brush(nextBeat, step === 1 || step === 3);
+      beatIndex++;
+      nextBeat += beat;
     }
   }
 
@@ -214,42 +266,56 @@
   }
 
   const AudioEngine = window.AudioContext || window.webkitAudioContext;
-  if (!AudioEngine) {
-    musicButton.disabled = true;
-    musicButton.querySelector('span').textContent = 'Music unavailable';
-  }
-  musicButton.addEventListener('click', async () => {
-    if (starting) return;
-    if (playing) { stopMusic(); return; }
-    starting = true;
-    musicButton.disabled = true;
+  function startMusic() {
+    if (!AudioEngine || !musicWanted || document.hidden || playing) return;
     try {
       if (!audio) {
         audio = new AudioEngine();
         master = audio.createGain();
-        master.gain.value = .35;
+        master.gain.value = .4;
         master.connect(audio.destination);
       }
-      await audio.resume();
-      if (document.hidden || audio.state !== 'running') return;
-      playing = true;
-      noteIndex = 0;
-      nextNote = audio.currentTime + .06;
-      scheduleMusic();
-      timer = window.setInterval(scheduleMusic, 100);
-      musicButton.setAttribute('aria-pressed', 'true');
-      musicButton.querySelector('span').textContent = 'Pause Christmas music';
+      // A blocked resume can remain pending. Gesture retries must stay available.
+      audio.resume().then(() => {
+        if (!musicWanted || document.hidden || playing || audio.state !== 'running') return;
+        playing = true;
+        noteIndex = 0;
+        beatIndex = 0;
+        cycleStart = audio.currentTime + .06;
+        nextNote = cycleStart;
+        nextBeat = cycleStart;
+        scheduleMusic();
+        timer = window.setInterval(scheduleMusic, 100);
+        musicButton.setAttribute('aria-pressed', 'true');
+        musicButton.querySelector('span').textContent = 'Pause Christmas music';
+      }).catch(() => { /* Retry on the next visitor interaction. */ });
     } catch (_) {
-      stopMusic();
       musicButton.querySelector('span').textContent = 'Retry Christmas music';
-    } finally {
-      starting = false;
-      musicButton.disabled = false;
     }
+  }
+
+  if (!AudioEngine) {
+    musicButton.disabled = true;
+    musicButton.querySelector('span').textContent = 'Music unavailable';
+  }
+  musicButton.addEventListener('click', () => {
+    musicWanted = !playing;
+    try { sessionStorage.setItem(musicKey, musicWanted ? 'on' : 'off'); } catch (_) {}
+    if (musicWanted) startMusic();
+    else stopMusic();
   });
+  function unlockMusic(event) {
+    if (event.target instanceof Element && event.target.closest('.porch-festive-controls')) return;
+    startMusic();
+  }
+  document.addEventListener('click', unlockMusic);
+  document.addEventListener('keydown', unlockMusic);
   document.addEventListener('visibilitychange', () => {
     updateMotion();
     if (document.hidden) stopMusic();
+    else startMusic();
   });
   window.addEventListener('pagehide', stopMusic);
+  window.addEventListener('pageshow', startMusic);
+  startMusic();
 })();
